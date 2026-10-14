@@ -968,7 +968,7 @@ td.hours-note{text-align:left;color:var(--muted);font-size:.85rem;border-bottom:
               form.reset();
               timeSelect.innerHTML = '<option value="">Choose a time</option>';
             } else {
-              throw new Error(result.message || 'Booking failed');
+              throw new Error(result.error || result.message || 'Booking failed');
             }
           } catch (err) {
             console.error('Booking error:', err);

@@ -17,11 +17,16 @@ exports.handler = async (event) => {
     }
 
     // Get service details
-    const { data: service } = await supabase
+    const { data: service, error: serviceError } = await supabase
       .from('services')
       .select('name, price')
       .eq('id', service_id)
-      .single();
+      .maybeSingle();
+
+    if (serviceError) {
+      console.error('Supabase error (services):', serviceError.message, serviceError.hint || '');
+      return { statusCode: 500, body: JSON.stringify({ error: 'Could not read booking data' }) };
+    }
 
     if (!service) {
       return { statusCode: 404, body: JSON.stringify({ error: 'Service not found' }) };
@@ -43,12 +48,13 @@ exports.handler = async (event) => {
       .select();
 
     if (error) {
+      console.error('Supabase error (appointments):', error.message, error.hint || '');
       return { statusCode: 500, body: JSON.stringify({ error: 'Could not create appointment' }) };
     }
 
     const appointmentDate = new Date(time);
-    const timeStr = appointmentDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-    const dateStr = appointmentDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+    const timeStr = appointmentDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'America/New_York' });
+    const dateStr = appointmentDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', timeZone: 'America/New_York' });
 
     // Send confirmation email
     await sgMail.send({
