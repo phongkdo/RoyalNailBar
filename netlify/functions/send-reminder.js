@@ -4,6 +4,8 @@ const sgMail = require('@sendgrid/mail');
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
+const SALON_TZ = 'America/New_York';
+
 exports.handler = async () => {
   try {
     const now = new Date();
@@ -31,8 +33,8 @@ exports.handler = async () => {
           .single();
 
         const appointmentDate = new Date(apt.appointment_time);
-        const timeStr = appointmentDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-        const dateStr = appointmentDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+        const timeStr = appointmentDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: SALON_TZ });
+        const dateStr = appointmentDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', timeZone: SALON_TZ });
 
         await sgMail.send({
           to: apt.customer_email,
