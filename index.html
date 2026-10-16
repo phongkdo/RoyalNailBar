@@ -808,9 +808,9 @@ td.hours-note{text-align:left;color:var(--muted);font-size:.85rem;border-bottom:
         </ul>
       </div>
       <form class="booking" id="bookingForm" name="booking" novalidate>
-        <div class="field"><label for="bk-name">Name</label><input id="bk-name" name="name" autocomplete="name" required></div>
-        <div class="field"><label for="bk-email">Email</label><input id="bk-email" name="email" type="email" autocomplete="email" required></div>
-        <div class="field"><label for="bk-phone">Phone</label><input id="bk-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="(407) 555-0123" required></div>
+        <div class="field"><label for="bk-name">Name <span class="required-indicator" style="color:red">*</span></label><input id="bk-name" name="name" autocomplete="name" required></div>
+        <div class="field"><label for="bk-email">Email <span class="required-indicator" style="color:red">*</span></label><input id="bk-email" name="email" type="email" autocomplete="email" required></div>
+        <div class="field"><label for="bk-phone">Phone <span class="required-indicator" style="color:red">*</span></label><input id="bk-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="(407) 555-0123" required></div>
 
         <div class="field full"><label for="bk-service">Service</label>
           <select id="bk-service" name="service" required>
@@ -930,6 +930,41 @@ td.hours-note{text-align:left;color:var(--muted);font-size:.85rem;border-bottom:
         const statusError = document.getElementById('bk-status-error');
         const submitBtn = document.getElementById('bk-submit');
 
+        // Helper function to validate individual fields
+        function isNameValid(name) {
+          return name.trim().length > 0;
+        }
+        function isEmailValid(email) {
+          const em = email.trim();
+          return em && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em);
+        }
+        function isPhoneValid(phone) {
+          const ph = phone.trim();
+          return ph && /\d/.test(ph) && ph.replace(/\D/g, '').length === 10;
+        }
+
+        // Hide indicators when valid data is entered
+        nameInput.addEventListener('blur', function() {
+          const indicator = document.querySelector('label[for="bk-name"] .required-indicator');
+          if (isNameValid(this.value)) {
+            indicator.style.display = 'none';
+          }
+        });
+
+        emailInput.addEventListener('blur', function() {
+          const indicator = document.querySelector('label[for="bk-email"] .required-indicator');
+          if (isEmailValid(this.value)) {
+            indicator.style.display = 'none';
+          }
+        });
+
+        phoneInput.addEventListener('blur', function() {
+          const indicator = document.querySelector('label[for="bk-phone"] .required-indicator');
+          if (isPhoneValid(this.value)) {
+            indicator.style.display = 'none';
+          }
+        });
+
         // Set minimum date to tomorrow
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
@@ -1021,6 +1056,16 @@ td.hours-note{text-align:left;color:var(--muted);font-size:.85rem;border-bottom:
           if (errors.length > 0) {
             statusError.textContent = '⚠ ' + errors.join(' • ');
             statusError.hidden = false;
+
+            // Show indicators for invalid fields
+            const nameInd = document.querySelector('label[for="bk-name"] .required-indicator');
+            const emailInd = document.querySelector('label[for="bk-email"] .required-indicator');
+            const phoneInd = document.querySelector('label[for="bk-phone"] .required-indicator');
+
+            if (!isNameValid(nameInput.value)) nameInd.style.display = 'inline';
+            if (!isEmailValid(emailInput.value)) emailInd.style.display = 'inline';
+            if (!isPhoneValid(phoneInput.value)) phoneInd.style.display = 'inline';
+
             return;
           }
 
