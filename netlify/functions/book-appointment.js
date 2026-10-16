@@ -50,19 +50,24 @@ exports.handler = async (event) => {
     const timeStr = appointmentDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
     const dateStr = appointmentDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
 
-    // Send confirmation email
-    await sgMail.send({
-      to: customer_email,
-      from: 'bookings@royalnailbar.com',
-      subject: 'Appointment Confirmed - Royal Nail Bar',
-      html: `<h2>Your appointment is confirmed! 💅</h2>
-        <p>Hi ${customer_name},</p>
-        <p><strong>${service.name}</strong></p>
-        <p><strong>${dateStr} at ${timeStr}</strong></p>
-        <p><strong>Price:</strong> $${service.price}</p>
-        <p>Location: The Shoppes at East Shore, 2411 Ocoee Apopka Rd, Apopka, FL 32703</p>
-        <p>Please arrive 5-10 minutes early.</p>`
-    });
+    // Send confirmation email (but don't fail if email fails)
+    try {
+      await sgMail.send({
+        to: customer_email,
+        from: 'bookings@royalnailbar.com',
+        subject: 'Appointment Confirmed - Royal Nail Bar',
+        html: `<h2>Your appointment is confirmed! 💅</h2>
+          <p>Hi ${customer_name},</p>
+          <p><strong>${service.name}</strong></p>
+          <p><strong>${dateStr} at ${timeStr}</strong></p>
+          <p><strong>Price:</strong> $${service.price}</p>
+          <p>Location: The Shoppes at East Shore, 2411 Ocoee Apopka Rd, Apopka, FL 32703</p>
+          <p>Please arrive 5-10 minutes early.</p>`
+      });
+    } catch (emailError) {
+      console.error('Email send failed:', emailError);
+      // Still return success since appointment was created
+    }
 
     return { statusCode: 200, body: JSON.stringify({ success: true, message: 'Appointment confirmed!' }) };
   } catch (error) {
