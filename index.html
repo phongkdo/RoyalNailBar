@@ -998,10 +998,28 @@ td.hours-note{text-align:left;color:var(--muted);font-size:.85rem;border-bottom:
           submitBtn.disabled = true;
           submitBtn.textContent = 'Booking...';
 
+          const nameInput = document.getElementById('bk-name');
+          const emailInput = document.getElementById('bk-email');
+          const phoneInput = document.getElementById('bk-phone');
+
+          // Validate required fields
+          const errors = [];
+          if (!nameInput.value.trim()) errors.push('Please enter your name');
+          if (!emailInput.value.trim()) errors.push('Please enter your email address');
+          if (!phoneInput.value.trim()) errors.push('Please enter your phone number');
+
+          if (errors.length > 0) {
+            statusError.textContent = '⚠ ' + errors.join(' • ');
+            statusError.hidden = false;
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Book appointment';
+            return;
+          }
+
           const formData = {
-            customer_name: document.getElementById('bk-name').value,
-            customer_email: document.getElementById('bk-email').value,
-            customer_phone: document.getElementById('bk-phone').value,
+            customer_name: nameInput.value.trim(),
+            customer_email: emailInput.value.trim(),
+            customer_phone: phoneInput.value.trim(),
             service_id: serviceSelect.value,
             date: dateInput.value,
             time: timeSelect.value,
