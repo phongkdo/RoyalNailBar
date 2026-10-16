@@ -1023,6 +1023,7 @@ td.hours-note{text-align:left;color:var(--muted);font-size:.85rem;border-bottom:
 
         serviceSelect.addEventListener('change', fetchAvailableTimes);
         dateInput.addEventListener('change', fetchAvailableTimes);
+        dateInput.addEventListener('input', fetchAvailableTimes); // Mobile date picker uses 'input' event
         document.getElementById('bk-tech').addEventListener('change', fetchAvailableTimes);
 
         // Form submission
