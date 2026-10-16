@@ -1095,7 +1095,7 @@ td.hours-note{text-align:left;color:var(--muted);font-size:.85rem;border-bottom:
           <li>10% off any visit during your birthday month</li>
         </ul>
       </div>
-      <form class="booking" id="subscribeForm" name="subscribe" method="POST" data-netlify="true" netlify-honeypot="bot-field" novalidate>
+      <form class='booking' id='subscribeForm' method='POST' name='subscribe' novalidate>
         <input type="hidden" name="form-name" value="subscribe">
         <p class="hp"><label for="sub-bot">Leave empty</label><input id="sub-bot" name="bot-field" tabindex="-1" autocomplete="off"></p>
         <div class="field"><label for="sub-name">Full name</label><input id="sub-name" name="full_name" autocomplete="name" required></div>
@@ -1149,23 +1149,6 @@ if (BOOKING_URL) {
 }
 document.querySelectorAll('[data-artist]').forEach(function(a){a.addEventListener('click',function(){var t=document.getElementById('bk-tech');if(t)t.selectedIndex=+a.getAttribute('data-artist')})});
 (function(){
-  var f=document.getElementById('bookingForm'), st=document.getElementById('bk-status'), btn=document.getElementById('bk-submit');
-  var d=document.getElementById('bk-date'); try{d.min=new Date().toISOString().slice(0,10)}catch(e){}
-  function show(msg,err){st.textContent=msg;st.className='status'+(err?' err':'');st.hidden=false}
-  f.addEventListener('submit',function(e){
-    e.preventDefault();
-    var name=f.name.value.trim(), phone=f.phone.value.trim(), svc=f.service.value;
-    if(!name||phone.replace(/\D/g,'').length<10||!svc){show('Please add your name, a 10-digit phone number and a service.',true);return}
-    var live=/royalnailbar\.com$|netlify\.app$/.test(location.hostname);
-    if(!live){show('Preview only: on royalnailbar.com this request goes straight to your inbox.',false);return}
-    btn.disabled=true;btn.textContent='Sending…';
-    fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(new FormData(f)).toString()})
-      .then(function(r){if(!r.ok)throw 0;f.reset();show('Thanks, '+name+'. We received your request and will call or text '+phone+' to confirm your time.')})
-      .catch(function(){show('Your request did not go through. Please check your connection and try again.',true)})
-      .then(function(){btn.disabled=false;btn.textContent='Request appointment'});
-  });
-})();
-(function(){
   var f=document.getElementById('subscribeForm'), st=document.getElementById('sub-status'), btn=document.getElementById('sub-submit');
   function show(msg,err){st.textContent=msg;st.className='status'+(err?' err':'');st.hidden=false}
   f.addEventListener('submit',function(e){
@@ -1188,3 +1171,4 @@ document.querySelectorAll('[data-artist]').forEach(function(a){a.addEventListene
 </script>
 </body>
 </html>
+<script async src="/.netlify/scripts/hud?variant=public" data-nf-variant="public" data-netlify-site-id="bf02837c-6ba6-4b91-984b-44dc8cb0c2e1" data-app-host="app.netlify.com" data-account-tier="personal"></script>
