@@ -28,11 +28,13 @@ exports.handler = async (event) => {
       return { statusCode: 404, body: JSON.stringify({ error: 'Service not found' }) };
     }
 
-    // Get day of week
-    const selectedDate = new Date(date);
+    // Parse date as local time (YYYY-MM-DD format from mobile/desktop date input)
+    // This ensures consistent day_of_week calculation across all devices
+    const [year, month, day] = date.split('-').map(Number);
+    const selectedDate = new Date(year, month - 1, day); // Local time, not UTC
     const dayOfWeek = selectedDate.getDay() === 0 ? 6 : selectedDate.getDay() - 1;
 
-    // Get staff availability
+    // Get staff availability for this day of week
     let query = supabase
       .from('availability')
       .select('staff_id, start_time, end_time')
@@ -48,9 +50,9 @@ exports.handler = async (event) => {
       return { statusCode: 200, body: JSON.stringify({ available_slots: [] }) };
     }
 
-    // Get booked appointments
-    const startOfDay = new Date(date + 'T00:00:00').toISOString();
-    const endOfDay = new Date(date + 'T23:59:59').toISOString();
+    // Get booked appointments for this date (using local time range)
+    const startOfDay = new Date(year, month - 1, day, 0, 0, 0).toISOString();
+    const endOfDay = new Date(year, month - 1, day, 23, 59, 59).toISOString();
 
     const { data: booked } = await supabase
       .from('appointments')
@@ -63,8 +65,7 @@ exports.handler = async (event) => {
     const slots = [];
     for (let hour = 9; hour < 19; hour++) {
       for (let min = 0; min < 60; min += 30) {
-        const slotTime = new Date(date);
-        slotTime.setHours(hour, min, 0);
+        const slotTime = new Date(year, month - 1, day, hour, min, 0);
 
         const isBooked = booked?.some(apt => {
           const aptTime = new Date(apt.appointment_time);
@@ -75,7 +76,11 @@ exports.handler = async (event) => {
         if (!isBooked) {
           slots.push({
             time: slotTime.toISOString(),
-            time_display: slotTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
+            time_display: slotTime.toLocaleString('en-US', { 
+              hour: 'numeric', 
+              minute: '2-digit', 
+              hour12: true 
+            })
           });
         }
       }
@@ -84,6 +89,6 @@ exports.handler = async (event) => {
     return { statusCode: 200, body: JSON.stringify({ available_slots: slots }) };
   } catch (error) {
     console.error('Error:', error);
-    return { statusCode: 500, body: JSON.stringify({ error: 'Server error' }) };
+    return { statusCode: 500, body: JSON.stringify({ error: 'Server error', details: error.message }) };
   }
 };
