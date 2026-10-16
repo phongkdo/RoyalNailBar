@@ -995,26 +995,38 @@ td.hours-note{text-align:left;color:var(--muted);font-size:.85rem;border-bottom:
           e.preventDefault();
           statusSuccess.hidden = true;
           statusError.hidden = true;
-          submitBtn.disabled = true;
-          submitBtn.textContent = 'Booking...';
 
           const nameInput = document.getElementById('bk-name');
           const emailInput = document.getElementById('bk-email');
           const phoneInput = document.getElementById('bk-phone');
 
-          // Validate required fields
+          // Validate required fields FIRST
           const errors = [];
           if (!nameInput.value.trim()) errors.push('Please enter your name');
-          if (!emailInput.value.trim()) errors.push('Please enter your email address');
-          if (!phoneInput.value.trim()) errors.push('Please enter your phone number');
+
+          const email = emailInput.value.trim();
+          if (!email) {
+            errors.push('Please enter your email address');
+          } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            errors.push('Please enter a valid email address (example: name@example.com)');
+          }
+
+          const phone = phoneInput.value.trim();
+          if (!phone) {
+            errors.push('Please enter your phone number');
+          } else if (!/\d/.test(phone) || phone.replace(/\D/g, '').length < 10) {
+            errors.push('Please enter a valid phone number (at least 10 digits)');
+          }
 
           if (errors.length > 0) {
             statusError.textContent = '⚠ ' + errors.join(' • ');
             statusError.hidden = false;
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Book appointment';
             return;
           }
+
+          // Only disable button after validation passes
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Booking...';
 
           const formData = {
             customer_name: nameInput.value.trim(),
