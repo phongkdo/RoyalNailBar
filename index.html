@@ -929,6 +929,9 @@ td.hours-note{text-align:left;color:var(--muted);font-size:.85rem;border-bottom:
         const statusSuccess = document.getElementById('bk-status-success');
         const statusError = document.getElementById('bk-status-error');
         const submitBtn = document.getElementById('bk-submit');
+        const nameInput = document.getElementById('bk-name');
+        const emailInput = document.getElementById('bk-email');
+        const phoneInput = document.getElementById('bk-phone');
 
         // Helper function to validate individual fields
         function isNameValid(name) {
@@ -968,7 +971,7 @@ td.hours-note{text-align:left;color:var(--muted);font-size:.85rem;border-bottom:
         // Set minimum date to tomorrow
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
-        dateInput.min = tomorrow.toISOString().split('T')[0];
+        dateInput.min = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, '0')}-${String(tomorrow.getDate()).padStart(2, '0')}`;
 
         // Fetch available times when service or date changes
         async function fetchAvailableTimes() {
@@ -1030,10 +1033,6 @@ td.hours-note{text-align:left;color:var(--muted);font-size:.85rem;border-bottom:
           e.preventDefault();
           statusSuccess.hidden = true;
           statusError.hidden = true;
-
-          const nameInput = document.getElementById('bk-name');
-          const emailInput = document.getElementById('bk-email');
-          const phoneInput = document.getElementById('bk-phone');
 
           // Validate required fields FIRST
           const errors = [];
