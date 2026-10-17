@@ -35,7 +35,7 @@
   "logo": "https://royalnailbar.com/logo.jpg",
   "image": "https://royalnailbar.com/logo.jpg",
   "description": "New nail salon and microblading studio opening soon in Apopka, Florida, in the Publix-anchored Shoppes at East Shore at Ocoee-Apopka Rd and Keene Rd.",
-  "email": "royalnailbarapopka@gmail.com",
+  "email": "contact@royalnailbar.com",
   "priceRange": "$$",
   "address": {
     "@type": "PostalAddress",
@@ -783,7 +783,7 @@ td.hours-note{text-align:left;color:var(--muted);font-size:.85rem;border-bottom:
       <div class="contact">
         <div class="head"><span class="eyebrow">Contact</span><h2>Contact us</h2></div>
         <p>We're opening soon. Questions before then? Email us and we'll reply within one business day.</p>
-        <p class="email-line"><span class="eyebrow">Email</span><br><a class="mail big-mail" id="email" href="mailto:royalnailbarapopka@gmail.com">royalnailbarapopka@gmail.com</a><button class="copy" type="button" data-copy="email">Copy</button></p>
+        <p class="email-line"><span class="eyebrow">Email</span><br><a class="mail big-mail" id="email" href="mailto:contact@royalnailbar.com">contact@royalnailbar.com</a><button class="copy" type="button" data-copy="email">Copy</button></p>
         <p><span class="eyebrow">Call or text</span><br><span class="big" id="phone">(407) 000-0000</span><button class="copy" type="button" data-copy="phone">Copy</button></p>
         <p class="email-line"><span class="eyebrow">Address</span><br>2411 Ocoee Apopka Rd, <span class="ph">Suite 000</span>, Apopka, FL 32703<br><span style="color:var(--muted)">The Shoppes at East Shore, next to Publix</span></p>
         <div class="contact-ctas"><a class="btn" href="https://www.google.com/maps/dir/?api=1&amp;destination=2411+Ocoee+Apopka+Rd+Apopka+FL+32703" target="_blank" rel="noopener">Open in Google Maps</a></div>
@@ -808,9 +808,9 @@ td.hours-note{text-align:left;color:var(--muted);font-size:.85rem;border-bottom:
         </ul>
       </div>
       <form class="booking" id="bookingForm" name="booking" novalidate>
-        <div class="field"><label for="bk-name">Name</label><input id="bk-name" name="name" autocomplete="name" required></div>
-        <div class="field"><label for="bk-email">Email</label><input id="bk-email" name="email" type="email" autocomplete="email" required></div>
-        <div class="field"><label for="bk-phone">Phone</label><input id="bk-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="(407) 555-0123" required></div>
+        <div class="field"><label for="bk-name">Name <span class="required-indicator" style="color:red">*</span></label><input id="bk-name" name="name" autocomplete="name" required></div>
+        <div class="field"><label for="bk-email">Email <span class="required-indicator" style="color:red">*</span></label><input id="bk-email" name="email" type="email" autocomplete="email" required></div>
+        <div class="field"><label for="bk-phone">Phone <span class="required-indicator" style="color:red">*</span></label><input id="bk-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="(407) 555-0123" required></div>
 
         <div class="field full"><label for="bk-service">Service</label>
           <select id="bk-service" name="service" required>
@@ -930,6 +930,41 @@ td.hours-note{text-align:left;color:var(--muted);font-size:.85rem;border-bottom:
         const statusError = document.getElementById('bk-status-error');
         const submitBtn = document.getElementById('bk-submit');
 
+        // Helper function to validate individual fields
+        function isNameValid(name) {
+          return name.trim().length > 0;
+        }
+        function isEmailValid(email) {
+          const em = email.trim();
+          return em && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em);
+        }
+        function isPhoneValid(phone) {
+          const ph = phone.trim();
+          return ph && /\d/.test(ph) && ph.replace(/\D/g, '').length === 10;
+        }
+
+        // Hide indicators when valid data is entered
+        nameInput.addEventListener('blur', function() {
+          const indicator = document.querySelector('label[for="bk-name"] .required-indicator');
+          if (isNameValid(this.value)) {
+            indicator.style.display = 'none';
+          }
+        });
+
+        emailInput.addEventListener('blur', function() {
+          const indicator = document.querySelector('label[for="bk-email"] .required-indicator');
+          if (isEmailValid(this.value)) {
+            indicator.style.display = 'none';
+          }
+        });
+
+        phoneInput.addEventListener('blur', function() {
+          const indicator = document.querySelector('label[for="bk-phone"] .required-indicator');
+          if (isPhoneValid(this.value)) {
+            indicator.style.display = 'none';
+          }
+        });
+
         // Set minimum date to tomorrow
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
@@ -988,6 +1023,7 @@ td.hours-note{text-align:left;color:var(--muted);font-size:.85rem;border-bottom:
 
         serviceSelect.addEventListener('change', fetchAvailableTimes);
         dateInput.addEventListener('change', fetchAvailableTimes);
+        dateInput.addEventListener('input', fetchAvailableTimes); // Mobile date picker uses 'input' event
         document.getElementById('bk-tech').addEventListener('change', fetchAvailableTimes);
 
         // Form submission
@@ -1021,6 +1057,16 @@ td.hours-note{text-align:left;color:var(--muted);font-size:.85rem;border-bottom:
           if (errors.length > 0) {
             statusError.textContent = '⚠ ' + errors.join(' • ');
             statusError.hidden = false;
+
+            // Show indicators for invalid fields
+            const nameInd = document.querySelector('label[for="bk-name"] .required-indicator');
+            const emailInd = document.querySelector('label[for="bk-email"] .required-indicator');
+            const phoneInd = document.querySelector('label[for="bk-phone"] .required-indicator');
+
+            if (!isNameValid(nameInput.value)) nameInd.style.display = 'inline';
+            if (!isEmailValid(emailInput.value)) emailInd.style.display = 'inline';
+            if (!isPhoneValid(phoneInput.value)) phoneInd.style.display = 'inline';
+
             return;
           }
 
