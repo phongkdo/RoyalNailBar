@@ -54,7 +54,7 @@ exports.handler = async (event) => {
     try {
       await sgMail.send({
         to: customer_email,
-        from: 'bookings@royalnailbar.com',
+        from: 'contact@royalnailbar.com',
         subject: 'Appointment Confirmed - Royal Nail Bar',
         html: `<h2>Your appointment is confirmed! 💅</h2>
           <p>Hi ${customer_name},</p>
