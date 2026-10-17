@@ -11,10 +11,15 @@ exports.handler = async (event) => {
       return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) };
     }
 
-    const { service_id, date, staff_id } = JSON.parse(event.body);
+    let { service_id, date, staff_id } = JSON.parse(event.body);
 
     if (!service_id || !date) {
       return { statusCode: 400, body: JSON.stringify({ error: 'Missing service_id or date' }) };
+    }
+
+    // Convert staff_id to string for consistent comparison with database values
+    if (staff_id) {
+      staff_id = String(staff_id);
     }
 
     // Get service duration
@@ -163,12 +168,13 @@ exports.handler = async (event) => {
 
           // Check if this staff member has a conflicting booking
           const hasConflict = bookedWithDurations.some(apt => {
-            if (apt.staff_id !== staffMemberId) {
+            // Compare staff IDs as strings to avoid type mismatches (number vs string)
+            if (String(apt.staff_id) !== String(staffMemberId)) {
               return false; // Different staff member
             }
             const aptTime = new Date(apt.appointment_time);
             const aptEnd = new Date(aptTime.getTime() + apt.duration * 60000); // Use BOOKED service duration
-            
+
             // Check for overlap: slot overlaps with appointment if:
             // slot starts before appointment ends AND slot ends after appointment starts
             return slotTime < aptEnd && slotEndTime > aptTime;
