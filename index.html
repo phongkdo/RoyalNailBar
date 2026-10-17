@@ -950,13 +950,14 @@ td.hours-note{text-align:left;color:var(--muted);font-size:.85rem;border-bottom:
           timeSelect.disabled = true;
 
           try {
+            const techValue = document.getElementById('bk-tech').value;
             const response = await fetch('/.netlify/functions/available-times', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 service_id: service,
                 date: date,
-                staff_id: document.getElementById('bk-tech').value || null
+                staff_id: techValue ? techValue : null
               })
             });
 
@@ -1115,6 +1116,7 @@ td.hours-note{text-align:left;color:var(--muted);font-size:.85rem;border-bottom:
           submitBtn.disabled = true;
           submitBtn.textContent = 'Booking...';
 
+          const techValue = document.getElementById('bk-tech').value;
           const formData = {
             customer_name: name,
             customer_email: email,
@@ -1122,7 +1124,7 @@ td.hours-note{text-align:left;color:var(--muted);font-size:.85rem;border-bottom:
             service_id: service,
             date: date,
             time: time,
-            staff_id: document.getElementById('bk-tech').value || null,
+            staff_id: techValue ? techValue : null,
             membership_interest: document.getElementById('bk-member').checked,
             notes: document.getElementById('bk-notes').value
           };
