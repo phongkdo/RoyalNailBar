@@ -30,10 +30,23 @@ exports.handler = async (event) => {
 
     const timeZone = 'America/New_York';
     const [year, month, day] = date.split('-').map(Number);
-    
+
     // Create date in local time for day-of-week calculation
     const localDate = new Date(year, month - 1, day);
     const dayOfWeek = localDate.getDay() === 0 ? 6 : localDate.getDay() - 1;
+
+    // Calculate timezone offset for EST (America/New_York)
+    // This accounts for both standard time (UTC-5) and daylight saving (UTC-4)
+    const refDate = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+    const estTimeStr = refDate.toLocaleString('en-US', {
+      timeZone: 'America/New_York',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    });
+    const estHour = parseInt(estTimeStr.split(':')[0]);
+    const tzOffset = estHour - 12; // How many hours EST is offset from UTC
 
     // Get staff availability for this day of week
     let availQuery = supabase
@@ -51,12 +64,12 @@ exports.handler = async (event) => {
       return { statusCode: 200, body: JSON.stringify({ available_slots: [] }) };
     }
 
-    // Get booked appointments for this date
+    // Get booked appointments for this date (EST)
     // If staff_id is provided, only get that staff's bookings
     // If no staff_id, get all staff bookings to check salon-wide availability
-    const startOfDay = new Date(year, month - 1, day, 0, 0, 0);
-    const endOfDay = new Date(year, month - 1, day, 23, 59, 59);
-    
+    const startOfDay = new Date(Date.UTC(year, month - 1, day, 0 - tzOffset, 0, 0));
+    const endOfDay = new Date(Date.UTC(year, month - 1, day, 23 - tzOffset, 59, 59));
+
     const startISO = startOfDay.toISOString();
     const endISO = endOfDay.toISOString();
 
@@ -109,11 +122,13 @@ exports.handler = async (event) => {
       });
     });
 
-    // Generate time slots from 9:00 AM to 7:00 PM (19:00)
+    // Generate time slots from 9:00 AM to 7:00 PM (19:00) in EST
     const slots = [];
     for (let hour = 9; hour < 19; hour++) {
       for (let min = 0; min < 60; min += 30) {
-        const slotTime = new Date(year, month - 1, day, hour, min, 0);
+        // Create slot time adjusted for timezone offset
+        // Convert EST time to UTC by subtracting the offset
+        const slotTime = new Date(Date.UTC(year, month - 1, day, hour - tzOffset, min, 0));
         const slotEndTime = new Date(slotTime.getTime() + service.duration_minutes * 60000);
 
         let slotAvailable = false;
@@ -131,8 +146,9 @@ exports.handler = async (event) => {
             const [startHour, startMin] = window.start.split(':').map(Number);
             const [endHour, endMin] = window.end.split(':').map(Number);
 
-            const windowStart = new Date(year, month - 1, day, startHour, startMin, 0);
-            const windowEnd = new Date(year, month - 1, day, endHour, endMin, 0);
+            // Convert availability window times to UTC for comparison
+            const windowStart = new Date(Date.UTC(year, month - 1, day, startHour - tzOffset, startMin, 0));
+            const windowEnd = new Date(Date.UTC(year, month - 1, day, endHour - tzOffset, endMin, 0));
 
             // Check if entire slot fits within window
             if (slotTime >= windowStart && slotEndTime <= windowEnd) {
