@@ -35,7 +35,7 @@
   "logo": "https://royalnailbar.com/logo.jpg",
   "image": "https://royalnailbar.com/logo.jpg",
   "description": "New nail salon and microblading studio opening soon in Apopka, Florida, in the Publix-anchored Shoppes at East Shore at Ocoee-Apopka Rd and Keene Rd.",
-  "email": "contact@royalnailbar.com",
+  "email": "royalnailbarapopka@gmail.com",
   "priceRange": "$$",
   "address": {
     "@type": "PostalAddress",
@@ -783,7 +783,7 @@ td.hours-note{text-align:left;color:var(--muted);font-size:.85rem;border-bottom:
       <div class="contact">
         <div class="head"><span class="eyebrow">Contact</span><h2>Contact us</h2></div>
         <p>We're opening soon. Questions before then? Email us and we'll reply within one business day.</p>
-        <p class="email-line"><span class="eyebrow">Email</span><br><a class="mail big-mail" id="email" href="mailto:contact@royalnailbar.com">contact@royalnailbar.com</a><button class="copy" type="button" data-copy="email">Copy</button></p>
+        <p class="email-line"><span class="eyebrow">Email</span><br><a class="mail big-mail" id="email" href="mailto:royalnailbarapopka@gmail.com">royalnailbarapopka@gmail.com</a><button class="copy" type="button" data-copy="email">Copy</button></p>
         <p><span class="eyebrow">Call or text</span><br><span class="big" id="phone">(407) 000-0000</span><button class="copy" type="button" data-copy="phone">Copy</button></p>
         <p class="email-line"><span class="eyebrow">Address</span><br>2411 Ocoee Apopka Rd, <span class="ph">Suite 000</span>, Apopka, FL 32703<br><span style="color:var(--muted)">The Shoppes at East Shore, next to Publix</span></p>
         <div class="contact-ctas"><a class="btn" href="https://www.google.com/maps/dir/?api=1&amp;destination=2411+Ocoee+Apopka+Rd+Apopka+FL+32703" target="_blank" rel="noopener">Open in Google Maps</a></div>
@@ -808,9 +808,9 @@ td.hours-note{text-align:left;color:var(--muted);font-size:.85rem;border-bottom:
         </ul>
       </div>
       <form class="booking" id="bookingForm" name="booking" novalidate>
-        <div class="field"><label for="bk-name">Name <span class="required-indicator" style="color:red">*</span></label><input id="bk-name" name="name" autocomplete="name" required></div>
-        <div class="field"><label for="bk-email">Email <span class="required-indicator" style="color:red">*</span></label><input id="bk-email" name="email" type="email" autocomplete="email" required></div>
-        <div class="field"><label for="bk-phone">Phone <span class="required-indicator" style="color:red">*</span></label><input id="bk-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="(407) 555-0123" required></div>
+        <div class="field"><label for="bk-name">Name</label><input id="bk-name" name="name" autocomplete="name" required></div>
+        <div class="field"><label for="bk-email">Email</label><input id="bk-email" name="email" type="email" autocomplete="email" required></div>
+        <div class="field"><label for="bk-phone">Phone</label><input id="bk-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="(407) 555-0123" required></div>
 
         <div class="field full"><label for="bk-service">Service</label>
           <select id="bk-service" name="service" required>
@@ -888,6 +888,14 @@ td.hours-note{text-align:left;color:var(--muted);font-size:.85rem;border-bottom:
             </optgroup>
           </select></div>
 
+        <div class="field full"><label for="bk-date">Select date</label><input id="bk-date" name="date" type="date" required></div>
+
+        <div class="field full"><label for="bk-time">Available times</label>
+          <select id="bk-time" name="time" required>
+            <option value="">Choose a time (select service &amp; date first)</option>
+          </select>
+          <small id="time-loading" style="display:none;color:var(--muted);margin-top:.4rem">Loading available times...</small></div>
+
         <div class="field full"><label for="bk-tech">Preferred technician (optional)</label>
           <select id="bk-tech" name="technician">
             <option value="">No preference</option>
@@ -896,14 +904,6 @@ td.hours-note{text-align:left;color:var(--muted);font-size:.85rem;border-bottom:
             <option value="3">Artist Name 3 (Gel &amp; Dip Specialist)</option>
             <option value="4">Artist Name 4 (Pedicure Specialist)</option>
           </select></div>
-
-        <div class="field full"><label for="bk-date">Select date</label><input id="bk-date" name="date" type="date" required></div>
-
-        <div class="field full"><label for="bk-time">Available times</label>
-          <select id="bk-time" name="time" required>
-            <option value="">Choose a time (select service &amp; date first)</option>
-          </select>
-          <small id="time-loading" style="display:none;color:var(--muted);margin-top:.4rem">Loading available times...</small></div>
 
         <div class="full"><label class="check" for="bk-member"><input type="checkbox" id="bk-member" name="membership_interest" value="yes"> I'm interested in a Crown Club membership (Founding Member pricing)</label></div>
 
@@ -929,41 +929,6 @@ td.hours-note{text-align:left;color:var(--muted);font-size:.85rem;border-bottom:
         const statusSuccess = document.getElementById('bk-status-success');
         const statusError = document.getElementById('bk-status-error');
         const submitBtn = document.getElementById('bk-submit');
-
-        // Helper function to validate individual fields
-        function isNameValid(name) {
-          return name.trim().length > 0;
-        }
-        function isEmailValid(email) {
-          const em = email.trim();
-          return em && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em);
-        }
-        function isPhoneValid(phone) {
-          const ph = phone.trim();
-          return ph && /\d/.test(ph) && ph.replace(/\D/g, '').length === 10;
-        }
-
-        // Hide indicators when valid data is entered
-        nameInput.addEventListener('blur', function() {
-          const indicator = document.querySelector('label[for="bk-name"] .required-indicator');
-          if (isNameValid(this.value)) {
-            indicator.style.display = 'none';
-          }
-        });
-
-        emailInput.addEventListener('blur', function() {
-          const indicator = document.querySelector('label[for="bk-email"] .required-indicator');
-          if (isEmailValid(this.value)) {
-            indicator.style.display = 'none';
-          }
-        });
-
-        phoneInput.addEventListener('blur', function() {
-          const indicator = document.querySelector('label[for="bk-phone"] .required-indicator');
-          if (isPhoneValid(this.value)) {
-            indicator.style.display = 'none';
-          }
-        });
 
         // Set minimum date to tomorrow
         const tomorrow = new Date();
@@ -1023,7 +988,6 @@ td.hours-note{text-align:left;color:var(--muted);font-size:.85rem;border-bottom:
 
         serviceSelect.addEventListener('change', fetchAvailableTimes);
         dateInput.addEventListener('change', fetchAvailableTimes);
-        dateInput.addEventListener('input', fetchAvailableTimes); // Mobile date picker uses 'input' event
         document.getElementById('bk-tech').addEventListener('change', fetchAvailableTimes);
 
         // Form submission
@@ -1031,53 +995,13 @@ td.hours-note{text-align:left;color:var(--muted);font-size:.85rem;border-bottom:
           e.preventDefault();
           statusSuccess.hidden = true;
           statusError.hidden = true;
-
-          const nameInput = document.getElementById('bk-name');
-          const emailInput = document.getElementById('bk-email');
-          const phoneInput = document.getElementById('bk-phone');
-
-          // Validate required fields FIRST
-          const errors = [];
-          if (!nameInput.value.trim()) errors.push('Please enter your name');
-
-          const email = emailInput.value.trim();
-          if (!email) {
-            errors.push('Please enter your email address');
-          } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            errors.push('Please enter a valid email address (example: name@example.com)');
-          }
-
-          const phone = phoneInput.value.trim();
-          if (!phone) {
-            errors.push('Please enter your phone number');
-          } else if (!/\d/.test(phone) || phone.replace(/\D/g, '').length !== 10) {
-            errors.push('Please enter a valid phone number (exactly 10 digits)');
-          }
-
-          if (errors.length > 0) {
-            statusError.textContent = '⚠ ' + errors.join(' • ');
-            statusError.hidden = false;
-
-            // Show indicators for invalid fields
-            const nameInd = document.querySelector('label[for="bk-name"] .required-indicator');
-            const emailInd = document.querySelector('label[for="bk-email"] .required-indicator');
-            const phoneInd = document.querySelector('label[for="bk-phone"] .required-indicator');
-
-            if (!isNameValid(nameInput.value)) nameInd.style.display = 'inline';
-            if (!isEmailValid(emailInput.value)) emailInd.style.display = 'inline';
-            if (!isPhoneValid(phoneInput.value)) phoneInd.style.display = 'inline';
-
-            return;
-          }
-
-          // Only disable button after validation passes
           submitBtn.disabled = true;
           submitBtn.textContent = 'Booking...';
 
           const formData = {
-            customer_name: nameInput.value.trim(),
-            customer_email: emailInput.value.trim(),
-            customer_phone: phoneInput.value.trim(),
+            customer_name: document.getElementById('bk-name').value,
+            customer_email: document.getElementById('bk-email').value,
+            customer_phone: document.getElementById('bk-phone').value,
             service_id: serviceSelect.value,
             date: dateInput.value,
             time: timeSelect.value,
@@ -1141,7 +1065,7 @@ td.hours-note{text-align:left;color:var(--muted);font-size:.85rem;border-bottom:
           <li>10% off any visit during your birthday month</li>
         </ul>
       </div>
-      <form class='booking' id='subscribeForm' method='POST' name='subscribe' novalidate>
+      <form class="booking" id="subscribeForm" name="subscribe" method="POST" data-netlify="true" netlify-honeypot="bot-field" novalidate>
         <input type="hidden" name="form-name" value="subscribe">
         <p class="hp"><label for="sub-bot">Leave empty</label><input id="sub-bot" name="bot-field" tabindex="-1" autocomplete="off"></p>
         <div class="field"><label for="sub-name">Full name</label><input id="sub-name" name="full_name" autocomplete="name" required></div>
@@ -1195,6 +1119,23 @@ if (BOOKING_URL) {
 }
 document.querySelectorAll('[data-artist]').forEach(function(a){a.addEventListener('click',function(){var t=document.getElementById('bk-tech');if(t)t.selectedIndex=+a.getAttribute('data-artist')})});
 (function(){
+  var f=document.getElementById('bookingForm'), st=document.getElementById('bk-status'), btn=document.getElementById('bk-submit');
+  var d=document.getElementById('bk-date'); try{d.min=new Date().toISOString().slice(0,10)}catch(e){}
+  function show(msg,err){st.textContent=msg;st.className='status'+(err?' err':'');st.hidden=false}
+  f.addEventListener('submit',function(e){
+    e.preventDefault();
+    var name=f.name.value.trim(), phone=f.phone.value.trim(), svc=f.service.value;
+    if(!name||phone.replace(/\D/g,'').length<10||!svc){show('Please add your name, a 10-digit phone number and a service.',true);return}
+    var live=/royalnailbar\.com$|netlify\.app$/.test(location.hostname);
+    if(!live){show('Preview only: on royalnailbar.com this request goes straight to your inbox.',false);return}
+    btn.disabled=true;btn.textContent='Sending…';
+    fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(new FormData(f)).toString()})
+      .then(function(r){if(!r.ok)throw 0;f.reset();show('Thanks, '+name+'. We received your request and will call or text '+phone+' to confirm your time.')})
+      .catch(function(){show('Your request did not go through. Please check your connection and try again.',true)})
+      .then(function(){btn.disabled=false;btn.textContent='Request appointment'});
+  });
+})();
+(function(){
   var f=document.getElementById('subscribeForm'), st=document.getElementById('sub-status'), btn=document.getElementById('sub-submit');
   function show(msg,err){st.textContent=msg;st.className='status'+(err?' err':'');st.hidden=false}
   f.addEventListener('submit',function(e){
@@ -1217,4 +1158,3 @@ document.querySelectorAll('[data-artist]').forEach(function(a){a.addEventListene
 </script>
 </body>
 </html>
-<script async src="/.netlify/scripts/hud?variant=public" data-nf-variant="public" data-netlify-site-id="bf02837c-6ba6-4b91-984b-44dc8cb0c2e1" data-app-host="app.netlify.com" data-account-tier="personal"></script>
